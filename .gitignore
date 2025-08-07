@@ -1,0 +1,161 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio 2015/2017 cache/options
+.vs/
+*.vs/
+
+# Rider
+.idea/
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# TeamCity
+_TeamCity*
+
+# DotCover
+*.dotCover
+
+# NCrunch
+_NCrunch_*
+.*crunch*.local.xml
+nCrunchTemp_*
+
+# MightyMoose
+*.mm.*
+AutoTest.Net/
+
+# Web workbench (sass)
+.sass-cache/
+
+# Installshield output
+*.vdproj
+*.nrp
+
+# ReSharper
+*.[Rr]e[Ss]harper.*
+*.DotSettings
+
+# JustCode
+*.JustCode
+
+# MonoDevelop
+*.pidb
+*.userprefs
+
+# NuGet
+packages/
+*.nupkg
+
+# The packages folder can be ignored because of Package Restore
+# (https://docs.microsoft.com/en-us/nuget/consume-packages/package-restore)
+# unless doing a feature or branch build
+packages/*
+
+# Windows Azure Build Process
+csx/
+*.build.csdef
+
+# Windows Store app package directories and files
+AppPackages/
+BundleArtifacts/
+Package.StoreAssociation.xml
+_pkginfo.txt
+
+# Visual Studio 2015+ cache/options
+.vs/
+
+# Visual Studio 2017+ specific files
+*.dbmdl
+*.jfm
+
+# Visual Studio 2019+ specific files
+*.fpt
+*.lxt
+
+# CodeRush
+.cr/
+
+# BlackBerry 10
+.debugbar/
+.debug/
+.debugbin/
+.deploy/
+.deploysettings
+.precompile/
+.rej/
+.settings/
+
+# Others
+*.cache
+*.log
+*.tmp
+*.old
+*.bak
+*.swp
+*~
+._*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._.*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Dotnet Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# VS Code
+.vscode/
+
+# Unity3D
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/Assets/AssetStoreTools*
+
+# Gradle
+.gradle/
+
+# JetBrains
+*.iws
+out/
+
+# NPM
+node_modules/
+
+# Yarn
+.yarn-integrity
+
+# Deployment
+/[Dd]rop/
+/[Pp]ublish/
+/[Pp]ublish[Bb]uild/
+
+# Visual Studio for Mac
+*.csproj.OpenWith
