@@ -1,12 +1,238 @@
-﻿<Window x:Class="NCMConverter.MainWindow"
+<Window x:Class="NCMConverter.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:NCMConverter"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="NCM 转换器" Height="600" Width="1000"
+        WindowStartupLocation="CenterScreen"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="Microsoft YaHei">
 
+    <Window.DataContext>
+        <local:MainViewModel/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <Style x:Key="ToolBarButtonStyle" TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="Padding" Value="12,6"/>
+        </Style>
+
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Window.Resources>
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="150"/>
+        </Grid.RowDefinitions>
+
+        <!-- 工具栏 -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+            <Button Style="{StaticResource ToolBarButtonStyle}"
+                    Command="{Binding AddFileCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="FilePlus" Margin="0,0,5,0"/>
+                    <TextBlock Text="添加文件"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource ToolBarButtonStyle}"
+                    Command="{Binding AddFolderCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="FolderPlus" Margin="0,0,5,0"/>
+                    <TextBlock Text="添加目录"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource ToolBarButtonStyle}"
+                    Command="{Binding ClearListCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="TrashCan" Margin="0,0,5,0"/>
+                    <TextBlock Text="清除列表"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource ToolBarButtonStyle}"
+                    Background="{DynamicResource PrimaryHueMidBrush}"
+                    Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"
+                    Command="{Binding StartProcessCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Play" Margin="0,0,5,0"/>
+                    <TextBlock Text="开始处理"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+
+        <GroupBox Header="保存选项" Grid.Row="1" Margin="0,0,0,15" Style="{StaticResource MaterialDesignCardGroupBox}">
+            <Grid Margin="6 4 6 4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <RadioButton Grid.Column="0" 
+                            Content="源文件所在目录" 
+                            IsChecked="{Binding IsSaveToSourceFolder, Mode=TwoWay}"
+                            Style="{StaticResource MaterialDesignRadioButton}"/>
+                <RadioButton Grid.Column="1"
+                            Content="自定义保存目录" 
+                            Margin="15,0,0,0"
+                            IsChecked="{Binding IsSaveToCustomFolder, Mode=TwoWay}"
+                            Style="{StaticResource MaterialDesignRadioButton}"/>
+
+                <TextBox Grid.Column="3"
+                         Margin="15,0,0,0"
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         Text="{Binding CustomSavePath, UpdateSourceTrigger=PropertyChanged}"
+                         materialDesign:HintAssist.Hint="保存目录路径"
+                         Height="35"
+                         FontSize="12"
+                         VerticalContentAlignment="Center"
+                         Padding="8,4,8,4"
+                         IsEnabled="{Binding IsSaveToCustomFolder}"/>
+
+                <Button Grid.Column="4"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                        Margin="8,0,0,0"
+                        Padding="8,3"
+                        Height="28"
+                        Command="{Binding BrowseFolderCommand}"
+                        IsEnabled="{Binding IsSaveToCustomFolder}">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="FolderOpen" Margin="0,0,4,0"/>
+                        <TextBlock Text="浏览"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </GroupBox>
+
+        <!-- 文件列表 -->
+        <DataGrid x:Name="FileListDataGrid"
+                  Grid.Row="2"
+                  ItemsSource="{Binding FileList}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  CanUserReorderColumns="False"
+                  CanUserResizeColumns="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single"
+                  Style="{StaticResource MaterialDesignDataGrid}"
+                  materialDesign:DataGridAssist.CellPadding="8 4 8 4"
+                  RowHeight="45"
+                  VerticalContentAlignment="Center"
+                  materialDesign:DataGridAssist.ColumnHeaderPadding="8">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="状态" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <materialDesign:PackIcon Name="WaitIcon" Kind="Clock" Width="14" Height="14" 
+                                    Foreground="#888888" Margin="1,0"/>
+                                <materialDesign:PackIcon Name="SuccessIcon" Kind="CheckCircle" Width="14" Height="14" 
+                                    Foreground="#4CAF50" Margin="1,0" Visibility="Collapsed"/>
+                                <materialDesign:PackIcon Name="ErrorIcon" Kind="CloseCircle" Width="14" Height="14" 
+                                    Foreground="#F44336" Margin="1,0" Visibility="Collapsed"/>
+                                <TextBlock Text="{Binding Status}" Margin="3,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding Status}" Value="等待">
+                                    <Setter TargetName="WaitIcon" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="SuccessIcon" Property="Visibility" Value="Collapsed"/>
+                                    <Setter TargetName="ErrorIcon" Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Status}" Value="完成">
+                                    <Setter TargetName="WaitIcon" Property="Visibility" Value="Collapsed"/>
+                                    <Setter TargetName="SuccessIcon" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="ErrorIcon" Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Status}" Value="失败">
+                                    <Setter TargetName="WaitIcon" Property="Visibility" Value="Collapsed"/>
+                                    <Setter TargetName="SuccessIcon" Property="Visibility" Value="Collapsed"/>
+                                    <Setter TargetName="ErrorIcon" Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTemplateColumn.HeaderStyle>
+                </DataGridTemplateColumn>
+
+                <DataGridTextColumn Header="文件" Binding="{Binding FilePath}" Width="*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+
+                <DataGridTemplateColumn Header="操作" Width="60">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                    Command="{Binding DataContext.RemoveFileCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                    CommandParameter="{Binding}"
+                                    Padding="4"
+                                    Margin="0"
+                                    Height="24"
+                                    Width="24">
+                                <materialDesign:PackIcon Kind="TrashCan" Width="14" Height="14"/>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- 日志显示 -->
+        <GroupBox Header="日志" Style="{StaticResource MaterialDesignCardGroupBox}" Grid.Row="3" Margin="0,8,0,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <TextBox FontSize="11"
+                     IsReadOnly="True" 
+                     TextWrapping="Wrap"
+                     Text="{Binding UpdateLog}"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     Padding="5"/>
+            </ScrollViewer>
+        </GroupBox>
+
+        <!-- 全局进度指示器 -->
+        <materialDesign:Card Grid.Row="3" 
+                           Padding="16" 
+                           Margin="0,8,0,0"
+                           Visibility="{Binding IsProcessing, Converter={StaticResource BooleanToVisibilityConverter}}"
+                           VerticalAlignment="Bottom">
+            <StackPanel Orientation="Horizontal">
+                <ProgressBar Style="{StaticResource MaterialDesignLinearProgressBar}"
+                           Value="{Binding OverallProgress}" 
+                           Maximum="100"
+                           Width="300" 
+                           Height="8"
+                           Margin="0,0,16,0"/>
+                <TextBlock Text="{Binding ProgressText}" 
+                         VerticalAlignment="Center"
+                         FontSize="12"/>
+            </StackPanel>
+        </materialDesign:Card>
     </Grid>
 </Window>
