@@ -78,26 +78,6 @@ namespace NCMConverter
             set { updateLog = value; OnPropertyChanged(); }
         }
 
-        private bool isProcessing = false;
-        public bool IsProcessing
-        {
-            get => isProcessing;
-            set { isProcessing = value; OnPropertyChanged(); }
-        }
-
-        private double overallProgress = 0;
-        public double OverallProgress
-        {
-            get => overallProgress;
-            set { overallProgress = value; OnPropertyChanged(); }
-        }
-
-        private string progressText = string.Empty;
-        public string ProgressText
-        {
-            get => progressText;
-            set { progressText = value; OnPropertyChanged(); }
-        }
 
         public MainViewModel()
         {
@@ -180,14 +160,9 @@ namespace NCMConverter
                 return;
             }
 
-            IsProcessing = true;
-            OverallProgress = 0;
-            ProgressText = "正在准备...";
-
             string? saveDir = IsSaveToSourceFolder ? null : await SelectCustomSaveDir();
             if (!IsSaveToSourceFolder && string.IsNullOrEmpty(saveDir))
             {
-                IsProcessing = false;
                 return;
             }
 
@@ -198,8 +173,7 @@ namespace NCMConverter
                 OnPropertyChanged(nameof(FileList));
 
                 int currentProgress = (int)(((double)(i + 1) / FileList.Count) * 100);
-                OverallProgress = currentProgress;
-                ProgressText = $"正在处理 {i + 1}/{FileList.Count} ({currentProgress}%): {System.IO.Path.GetFileName(item.FilePath)}";
+                UpdateLog += $"正在处理 {i + 1}/{FileList.Count} ({currentProgress}%): {System.IO.Path.GetFileName(item.FilePath)}\n";
 
                 string outDir = IsSaveToSourceFolder ? System.IO.Path.GetDirectoryName(item.FilePath) ?? "" : saveDir ?? "";
                 bool ok = await NcmConvertService.ConvertNcmAsync(item.FilePath, outDir, msg => UpdateLog += msg + "\n");
@@ -207,14 +181,7 @@ namespace NCMConverter
                 OnPropertyChanged(nameof(FileList));
             }
 
-            OverallProgress = 100;
-            ProgressText = "处理完成";
             UpdateLog += $"全部处理完成。\n";
-            
-            // 延迟后隐藏进度条
-            await System.Threading.Tasks.Task.Delay(2000);
-            IsProcessing = false;
-            OverallProgress = 0;
         }
 
         private Task<string?> SelectCustomSaveDir()
