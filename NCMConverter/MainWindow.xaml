@@ -13,6 +13,8 @@
     FontFamily="Microsoft YaHei"
     TextElement.Foreground="{DynamicResource MaterialDesignBody}"
     WindowStartupLocation="CenterScreen"
+    AllowDrop="True"
+    Drop="Window_Drop"
     mc:Ignorable="d">
 
     <Window.DataContext>

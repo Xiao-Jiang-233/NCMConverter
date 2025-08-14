@@ -18,6 +18,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `LibDownloader.cs`: 管理 libncmdump 库的自动下载和更新
    - `NcmCrypt`: libncmdump.dll 的 P/Invoke 包装器
 
+### 架构详细说明
+
+#### 数据流
+1. 用户通过 UI 添加 NCM 文件（文件/文件夹对话框或拖放）
+2. 文件被添加到 ViewModel 中的 ObservableCollection
+3. 点击"开始处理"时，每个文件按顺序处理
+4. NcmConvertService 通过 P/Invoke 调用 libncmdump.dll 转换文件
+5. 进度和状态更新显示在 UI 中
+
+#### 核心组件交互
+- `MainWindow.xaml` - 主应用程序窗口 UI，处理拖放事件
+- `MainViewModel.cs` - 应用程序逻辑和数据管理，包含命令绑定
+- `NcmCrypt` - libncmdump.dll 的 P/Invoke 包装器，处理底层转换
+- `NcmConvertService.cs` - NCM 文件转换服务，包装转换逻辑
+- `LibDownloader.cs` - 库更新管理，自动下载和更新 libncmdump.dll
+
 ## 主要组件
 
 ### 核心文件
@@ -26,13 +42,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `NcmConvertService.cs` - NCM 文件转换服务
 - `LibDownloader.cs` - 库更新管理
 - `NcmCrypt` - libncmdump.dll 的 P/Invoke 包装器
-
-### 数据流
-1. 用户通过 UI 添加 NCM 文件（文件/文件夹对话框）
-2. 文件被添加到 ViewModel 中的 ObservableCollection
-3. 点击"开始处理"时，每个文件按顺序处理
-4. NcmConvertService 通过 P/Invoke 调用 libncmdump.dll 转换文件
-5. 进度和状态更新显示在 UI 中
 
 ## 构建和开发命令
 
@@ -56,6 +65,11 @@ dotnet publish -c Release -r win-x64 --self-contained true
 dotnet restore
 ```
 
+### 调试应用程序
+```bash
+dotnet run --debug
+```
+
 ## 开发注意事项
 
 1. 应用程序需要 `libncmdump.dll` 才能运行
@@ -63,6 +77,8 @@ dotnet restore
 3. 应用程序支持将文件转换到其源目录或自定义目录
 4. UI 使用 Material Design 主题
 5. 应用程序使用 Windows Forms 对话框进行文件夹浏览（与 WPF 互操作）
+6. 应用程序支持拖放文件和文件夹到窗口中
+7. 日志输出显示在 UI 底部的日志区域
 
 ## 依赖项
 

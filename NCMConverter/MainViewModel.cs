@@ -8,15 +8,15 @@ namespace NCMConverter
 {
     public class FileItem : INotifyPropertyChanged
     {
-        private string status;
+        private string? status;
         public string Status
         {
-            get => status;
+            get => status ?? "";
             set { status = value; OnPropertyChanged(); }
         }
-        public string FilePath { get; set; }
+        public string FilePath { get; set; } = "";
         public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
@@ -131,6 +131,13 @@ namespace NCMConverter
             }
         }
 
+        // 公共方法，用于添加单个文件（供拖放功能使用）
+        public void AddFile(string filePath)
+        {
+            if (!FileListExists(filePath))
+                FileList.Add(new FileItem { Status = "等待", FilePath = filePath });
+        }
+
         private void AddFolder()
         {
             using var dlg = new System.Windows.Forms.FolderBrowserDialog();
@@ -142,6 +149,17 @@ namespace NCMConverter
                     if (!FileListExists(file))
                         FileList.Add(new FileItem { Status = "等待", FilePath = file });
                 }
+            }
+        }
+
+        // 公共方法，用于添加目录中的所有.ncm文件（供拖放功能使用）
+        public void AddFilesFromDirectory(string directoryPath)
+        {
+            var files = System.IO.Directory.GetFiles(directoryPath, "*.ncm", System.IO.SearchOption.AllDirectories);
+            foreach (var file in files)
+            {
+                if (!FileListExists(file))
+                    FileList.Add(new FileItem { Status = "等待", FilePath = file });
             }
         }
 
